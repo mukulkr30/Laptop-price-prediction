@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-X_origional = np.array([
+X_original = np.array([
     [4, 256, 2.1, 13.3, 0],
     [8, 512, 2.5, 15.6, 1],
     [16, 1024, 3.0, 17.0, 2],
@@ -19,9 +19,9 @@ X_origional = np.array([
     [8, 256, 2.2, 14.0, 2]
 ], dtype=float)
 # Feature Scaling
-mu = np.mean(X_origional, axis=0)
-sigma = np.std(X_origional, axis=0)
-X_train = (X_origional - mu) / sigma
+mu = np.mean(X_original, axis=0)
+sigma = np.std(X_original, axis=0)
+X_train = (X_original - mu) / sigma
 Y_train = np.array([
     35000, 50000, 85000, 30000, 45000, 60000, 80000, 48000,
     32000, 90000, 55000, 65000, 33000, 87000, 46000
