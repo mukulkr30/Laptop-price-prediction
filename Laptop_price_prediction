@@ -1,0 +1,116 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import copy
+X_origional = np.array([
+    [4, 256, 2.1, 13.3, 0],
+    [8, 512, 2.5, 15.6, 1],
+    [16, 1024, 3.0, 17.0, 2],
+    [4, 128, 1.8, 13.3, 0],
+    [8, 256, 2.4, 14.0, 1],
+    [12, 512, 2.7, 15.6, 2],
+    [16, 512, 3.2, 15.6, 1],
+    [8, 256, 2.3, 14.0, 0],
+    [4, 128, 1.9, 13.3, 2],
+    [16, 1024, 3.5, 17.3, 1],
+    [12, 256, 2.6, 14.0, 0],
+    [8, 512, 2.8, 15.6, 2],
+    [4, 128, 2.0, 13.3, 1],
+    [16, 1024, 3.1, 17.0, 0],
+    [8, 256, 2.2, 14.0, 2]
+], dtype=float)
+# Feature Scaling
+mu = np.mean(X_origional, axis=0)
+sigma = np.std(X_origional, axis=0)
+X_train = (X_origional - mu) / sigma
+Y_train = np.array([
+    35000, 50000, 85000, 30000, 45000, 60000, 80000, 48000,
+    32000, 90000, 55000, 65000, 33000, 87000, 46000
+], dtype=float).reshape(-1, 1)
+
+
+
+# Feature names
+feature_names = ['RAM (GB)', 'Storage (GB)', 'Processor Speed (GHz)', 'Screen Size (inches)', 'Brand (0=Dell, 1=HP, 2=Lenovo)']
+
+# Plot each feature against price
+for i in range(X_train.shape[1]):
+    plt.figure(figsize=(6, 4))
+    plt.scatter(X_train[:, i], Y_train, color='blue', alpha=0.7)
+    plt.xlabel(feature_names[i])
+    plt.ylabel('Price (INR)')
+    plt.title(f'{feature_names[i]} vs Price')
+    plt.grid(True)
+    # plt.show()
+
+def compute_cost(X,Y,w,b):
+    m = X.shape[0]
+    total_cost = 0
+    for i in range(m):
+        model = np.dot(w,X[i])+b
+        total_cost += (model - Y[i])**2
+    total_cost /= (2*m)
+    return total_cost
+    
+def compute_gradient(X,Y,w,b):
+    m = X.shape[0]
+    dj_dw = 0.
+    dj_db = 0.
+    for i in range(m):
+        cost = np.dot(w,X[i])+b
+        dj_dw += (cost-Y[i])*X[i]
+        dj_db += (cost-Y[i])
+    dj_dw/=m
+    dj_db/=m
+    return dj_dw,dj_db
+    
+def gredient_descent(X,Y,w_in,b_in,compute_cost,compute_gredient,alpha,iter):
+    m = X.shape[0]
+    w = copy.deepcopy(w_in)  #avoid modifying global w within function
+    b = b_in
+    for i in range(iter):
+        dj_dw,dj_db = compute_gradient(X,Y,w,b)
+        w = w-alpha*dj_dw
+        b = b-alpha*dj_db
+        
+        cost =  compute_cost(X, Y, w, b)
+
+        # Print cost every at intervals 10 times or as many iterations if < 10
+        
+    return w, b
+        
+# initialize fitting parameters. Recall that the shape of w is (n,)
+initial_w = np.zeros(X_train.shape[1])
+initial_b = 0.
+
+# some gradient descent settings
+iter = 1500
+alpha = 0.01
+w,b = gredient_descent(X_train ,Y_train, initial_w, initial_b, 
+                     compute_cost, compute_gradient, alpha, iter)
+# print("w,b found by gradient descent:", w, b)
+
+predicted = np.dot(X_train,w)+b
+plt.figure(figsize=(6, 4))
+plt.scatter(range(len(Y_train)), Y_train, label='Actual', color='blue')
+plt.scatter(range(len(predicted)), predicted, label='Predicted', color='red')
+plt.title('Actual vs Predicted Laptop Prices')
+plt.xlabel('Sample')
+plt.ylabel('Price (INR)')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+# plt.show()
+
+#Prediction
+
+new_laptop = np.array([8, 512, 2.5, 15.6,1])
+new_laptop_scaled = (new_laptop - mu) / sigma
+predicted_price = np.dot(new_laptop_scaled, w) + b
+if new_laptop[4] == 0:
+    c = "DELL"
+elif new_laptop[4] == 1:
+    c = "HP"
+elif new_laptop[4] == 2:
+    c = "Lenovo"
+print(f"'RAM (GB)':{new_laptop[0]}, 'Storage (GB)':{new_laptop[1]}, 'Processor Speed (GHz)':{new_laptop[2]}, 'Screen Size (inche3)':{new_laptop[3]}, Brane: {c}")
+print(f"Predicted price: ₹{float(predicted_price.item()):.2f}")
